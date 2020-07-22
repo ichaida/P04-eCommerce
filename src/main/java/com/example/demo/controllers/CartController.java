@@ -20,6 +20,9 @@ import com.example.demo.model.persistence.repositories.ItemRepository;
 import com.example.demo.model.persistence.repositories.UserRepository;
 import com.example.demo.model.requests.ModifyCartRequest;
 
+/**
+ * @author ismailchaida
+ */
 @RestController
 @RequestMapping("/api/cart")
 @Slf4j

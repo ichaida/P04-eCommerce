@@ -8,13 +8,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+/**
+ * @author ismailchaida
+ */
 @EnableJpaRepositories("com.example.demo.model.persistence.repositories")
 @EntityScan("com.example.demo.model.persistence")
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
-public class SareetaApplication {
+public class Application {
 
     public static void main(String[] args) {
-        SpringApplication.run(SareetaApplication.class, args);
+        SpringApplication.run(Application.class, args);
     }
 
     @Bean
