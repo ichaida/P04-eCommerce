@@ -20,6 +20,9 @@ import com.example.demo.model.persistence.repositories.CartRepository;
 import com.example.demo.model.persistence.repositories.UserRepository;
 import com.example.demo.model.requests.CreateUserRequest;
 
+/**
+ * @author ismailchaida
+ */
 @RestController
 @RequestMapping("/api/user")
 @Slf4j
