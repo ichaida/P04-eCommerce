@@ -24,8 +24,6 @@ import static org.mockito.Mockito.when;
 /**
  * @author ismailchaida.
  */
-@RunWith(SpringRunner.class)
-@SpringBootTest
 public class ItemControllerTest {
     private ItemController itemController;
     private ItemRepository itemRepository;

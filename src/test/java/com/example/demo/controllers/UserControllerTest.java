@@ -1,6 +1,7 @@
 package com.example.demo.controllers;
 
 import com.example.demo.model.persistence.User;
+import com.example.demo.model.persistence.repositories.CartRepository;
 import com.example.demo.model.persistence.repositories.UserRepository;
 import com.example.demo.model.requests.CreateUserRequest;
 import com.example.demo.utils.TestUtils;
@@ -22,11 +23,10 @@ import static org.mockito.Mockito.when;
 /**
  * @author ismailchaida.
  */
-@RunWith(SpringRunner.class)
-@SpringBootTest
 public class UserControllerTest {
     private UserController userController;
     private UserRepository userRepository;
+    private CartRepository cartRepository;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Before
@@ -34,9 +34,11 @@ public class UserControllerTest {
 
         userController = new UserController();
         userRepository = mock(UserRepository.class);
+        cartRepository = mock(CartRepository.class);
         bCryptPasswordEncoder = mock(BCryptPasswordEncoder.class);
 
         TestUtils.injectObjects(userController, "userRepository", userRepository);
+        TestUtils.injectObjects(userController, "cartRepository", cartRepository);
         TestUtils.injectObjects(userController, "bCryptPasswordEncoder", bCryptPasswordEncoder);
     }
 
