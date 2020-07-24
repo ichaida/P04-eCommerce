@@ -1,24 +1,17 @@
 package com.example.demo.controllers;
 
-import java.util.Optional;
-
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.example.demo.model.persistence.Cart;
 import com.example.demo.model.persistence.User;
 import com.example.demo.model.persistence.repositories.CartRepository;
 import com.example.demo.model.persistence.repositories.UserRepository;
 import com.example.demo.model.requests.CreateUserRequest;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 /**
  * @author ismailchaida
@@ -28,46 +21,53 @@ import com.example.demo.model.requests.CreateUserRequest;
 @Slf4j
 public class UserController {
 
-	@Autowired
-	private UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-	@Autowired
-	private CartRepository cartRepository;
+    @Autowired
+    private CartRepository cartRepository;
 
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
-	@GetMapping("/id/{id}")
-	public ResponseEntity<User> findById(@PathVariable Long id) {
-		return ResponseEntity.of(userRepository.findById(id));
-	}
-
-	@GetMapping("/{username}")
-	public ResponseEntity<User> findByUserName(@PathVariable String username) {
-		User user = userRepository.findByUsername(username);
-        if (user == null) {
-            log.error("No user found matching {}", username);
+    @GetMapping("/id/{id}")
+    public ResponseEntity<User> findById(@PathVariable Long id) {
+        Optional<User> userOpt = userRepository.findById(id);
+        if(userOpt.isPresent()){
+            log.info("findUserById | User Id: {} was retrieved successfully", id);
+            return ResponseEntity.of(userOpt);
+        }else {
+            log.error("findUserById | User Id: {} not found", id);
             return ResponseEntity.notFound().build();
         }
-        log.debug("Fetching the user {}", username);
+    }
+
+    @GetMapping("/{username}")
+    public ResponseEntity<User> findByUserName(@PathVariable String username) {
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            log.error("findByUserName | No user found matching {}", username);
+            return ResponseEntity.notFound().build();
+        }
+        log.debug("findByUserName | Fetching the user {}", username);
         return ResponseEntity.ok(user);
     }
 
-	@PostMapping("/create")
-	public ResponseEntity<User> createUser(@RequestBody CreateUserRequest createUserRequest) {
-		User user = new User();
-		user.setUsername(createUserRequest.getUsername());
-		Cart cart = new Cart();
-		cartRepository.save(cart);
-		user.setCart(cart);
-		if((createUserRequest.getPassword().length() < 7) || !createUserRequest.getPassword().equals(createUserRequest.getConfirmPassword())){
-		    log.error("Error with user password. Cannot create user {}", createUserRequest.getUsername());
-		    return ResponseEntity.badRequest().build();
+    @PostMapping("/create")
+    public ResponseEntity<User> createUser(@RequestBody CreateUserRequest createUserRequest) {
+        User user = new User();
+        user.setUsername(createUserRequest.getUsername());
+        Cart cart = new Cart();
+        cartRepository.save(cart);
+        user.setCart(cart);
+        if ((createUserRequest.getPassword().length() < 7) || !createUserRequest.getPassword().equals(createUserRequest.getConfirmPassword())) {
+            log.error("createUser | Error with user password. Cannot create user {}", createUserRequest.getUsername());
+            return ResponseEntity.badRequest().build();
         }
         user.setPassword(bCryptPasswordEncoder.encode(createUserRequest.getPassword()));
-		userRepository.save(user);
-        log.debug("User {} created successfully", createUserRequest.getUsername());
-		return ResponseEntity.ok(user);
-	}
+        userRepository.save(user);
+        log.debug("createUser | User {} created successfully", createUserRequest.getUsername());
+        return ResponseEntity.ok(user);
+    }
 
 }

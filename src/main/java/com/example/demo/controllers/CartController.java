@@ -41,18 +41,19 @@ public class CartController {
 	public ResponseEntity<Cart> addTocart(@RequestBody ModifyCartRequest request) {
 		User user = userRepository.findByUsername(request.getUsername());
 		if(user == null) {
-            log.error("No user found by {}", request.getUsername());
+            log.error("addToCart | No user found by {}", request.getUsername());
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-		}
-		Optional<Item> item = itemRepository.findById(request.getItemId());
-		if(!item.isPresent()) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        Optional<Item> item = itemRepository.findById(request.getItemId());
+        if(!item.isPresent()) {
+            log.error("addToCart | No item found using Id {}", request.getItemId());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
 		Cart cart = user.getCart();
 		IntStream.range(0, request.getQuantity())
 			.forEach(i -> cart.addItem(item.get()));
 		cartRepository.save(cart);
-		log.debug("User {} successfully added item to the cart", request.getUsername());
+		log.debug("addToCart | User {} successfully added item to the cart", request.getUsername());
 		return ResponseEntity.ok(cart);
 	}
 

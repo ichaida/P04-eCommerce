@@ -2,6 +2,13 @@
 <configuration>
 
     <property name="HOME_LOG" value="logs/app.log"/>
+    <property name="PATTERN" value="%green(%d{dd-MM-yyyy HH:mm:ss.SSS}) %magenta([%thread]) %highlight(%-5level) %yellow(%logger{36}.%M - %msg%n)"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${PATTERN}</pattern>
+        </encoder>
+    </appender>
 
     <appender name="FILE-ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${HOME_LOG}</file>
@@ -9,7 +16,7 @@
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>logs/archived/app.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <!-- each archived file, size max 10MB -->
-            <maxFileSize>10MB</maxFileSize>
+            <maxFileSize>100MB</maxFileSize>
             <!-- total size of all archive files, if total size > 2GB,
 				it will delete old archived file -->
             <totalSizeCap>2GB</totalSizeCap>
@@ -18,16 +25,32 @@
         </rollingPolicy>
 
         <encoder>
-            <pattern>%d %p %c{1.} [%t] %m%n</pattern>
+            <pattern>${PATTERN}</pattern>
         </encoder>
     </appender>
 
+    <appender name="SOCKET" class="com.splunk.logging.TcpAppender">
+        <RemoteHost>localhost</RemoteHost>
+        <Port>8081</Port>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%d{dd-MM-yyyy HH:mm:ss.SSS} %level [%thread] %logger{10}.%M [%file:%line] %msg%n</pattern>
+        </layout>
+    </appender>
+
+    <logger name="splunk.logger" additivity="false" level="INFO">
+        <appender-ref ref="SOCKET"/>
+    </logger>
+
     <logger name="com.example" level="debug" additivity="false">
+        <appender-ref ref="SOCKET"/>
         <appender-ref ref="FILE-ROLLING"/>
+        <appender-ref ref="CONSOLE"/>
     </logger>
 
     <root level="error">
+        <appender-ref ref="SOCKET"/>
         <appender-ref ref="FILE-ROLLING"/>
+        <appender-ref ref="CONSOLE"/>
     </root>
 
 </configuration>
